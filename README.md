@@ -1,7 +1,6 @@
-# "Tony" - The Mobster LangChain Agent
+# LangChain Agent
 
 ## 1. Project Title & Description
-**"Tony" - The Mobster LangChain Agent**
 This project implements a conversational LangChain agent, who has the personality of Tony from the sopranos. I am using GPT4o-mini model, the agent interacts with users via infinite interactive chat loop and dynamically invokes several custom-built tools to provide real-time information, utilities, and services.
 
 ## 2. Tools Implemented
