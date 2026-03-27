@@ -14,9 +14,9 @@ Follow these steps to run the agent locally:
 
 1. **Install Dependencies:**
    Ensure you have Python installed, then install the required LangChain packages:
-   ```bash
+```
  pip install langchain langchain-openai langgraph python-dotenv
-   ```
+```
 2. **Set your OpenAI API Key:**
    The agent requires an OpenAI API key to function. Set it as an environment variable in your terminal:
    * **Windows:** `setx OPENAI_API_KEY=your_api_key_here`
