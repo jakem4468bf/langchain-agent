@@ -1,4 +1,5 @@
 import os
+import json
 import string
 import secrets
 import urllib.request
@@ -29,12 +30,30 @@ def get_current_time(timezone_str: str) -> str:
 
 @tool
 def get_weather(location: str) -> str:
-    """Fetch real weather from a free API (wttr.in) for a given location."""
+    """Fetch real weather from a free API (Open-Meteo) for a given location."""
     try:
-        url = f"https://wttr.in/{urllib.parse.quote(location)}?format=3"
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=5) as response:
-            return response.read().decode('utf-8').strip()
+        geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={urllib.parse.quote(location)}&count=1"
+        req = urllib.request.Request(geo_url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=10) as response:
+            geo_data = json.loads(response.read().decode('utf-8'))
+            
+        if not geo_data.get('results'):
+            return f"Error: Could not find location '{location}'"
+            
+        lat = geo_data['results'][0]['latitude']
+        lon = geo_data['results'][0]['longitude']
+        name = geo_data['results'][0]['name']
+        
+        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,precipitation"
+        w_req = urllib.request.Request(weather_url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(w_req, timeout=10) as w_response:
+            w_data = json.loads(w_response.read().decode('utf-8'))
+            
+        temp = w_data['current']['temperature_2m']
+        units = w_data['current_units']['temperature_2m']
+        precip = w_data['current']['precipitation']
+        
+        return f"Current weather in {name}: {temp}{units}, Precipitation: {precip}mm"
     except Exception as e:
         return f"Error fetching weather for '{location}': {str(e)}"
 
@@ -64,7 +83,6 @@ def main():
         print("Please set it via command line (e.g., 'set OPENAI_API_KEY=your_key') before running the agent.")
         return
 
-    print(f"Your OPENAI_API_KEY is: {os.environ.get('OPENAI_API_KEY')}")
 
     # Initialize the LangChain Chat model
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
